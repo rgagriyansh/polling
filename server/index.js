@@ -21,6 +21,15 @@ const io = socketIo(server, {
 app.use(cors());
 app.use(express.json());
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  });
+});
+
 // Serve static files (only in production)
 if (process.env.NODE_ENV === 'production') {
   const staticPath = path.join(__dirname, '../client/build');
@@ -269,13 +278,25 @@ app.get('*', (req, res) => {
     return res.status(404).json({ error: 'Socket.IO endpoint not found' });
   }
   
+  // Skip health check
+  if (req.path === '/health') {
+    return res.status(404).json({ error: 'Health endpoint not found' });
+  }
+  
   // In production, serve the built React app
   if (process.env.NODE_ENV === 'production') {
     const indexPath = path.join(__dirname, '../client/build/index.html');
+    console.log('Looking for React app at:', indexPath);
     if (require('fs').existsSync(indexPath)) {
+      console.log('Serving React app from:', indexPath);
       res.sendFile(indexPath);
     } else {
-      res.status(404).json({ error: 'React app not built. Please run npm run build first.' });
+      console.log('React app not found at:', indexPath);
+      res.status(404).json({ 
+        error: 'React app not built. Please run npm run build first.',
+        path: indexPath,
+        exists: require('fs').existsSync(path.dirname(indexPath))
+      });
     }
   } else {
     // In development, redirect to React dev server
