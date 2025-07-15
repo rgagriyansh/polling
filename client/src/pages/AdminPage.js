@@ -3,12 +3,9 @@ import { useParams, Link } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import config from '../config';
 import { 
-  BarChart3, 
   Users, 
   Download, 
   Copy, 
-  Share2, 
-  Eye,
   TrendingUp,
   Clock,
   QrCode,
@@ -41,7 +38,6 @@ const AdminPage = () => {
   const { pollId } = useParams();
   const [poll, setPoll] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [socket, setSocket] = useState(null);
   const [showQR, setShowQR] = useState(false);
 
   useEffect(() => {
@@ -66,7 +62,6 @@ const AdminPage = () => {
 
     // Setup Socket.IO connection for real-time updates
     const newSocket = io(config.getSocketUrl());
-    setSocket(newSocket);
 
     newSocket.emit('joinPoll', pollId);
 
