@@ -36,6 +36,7 @@ const ResultsPage = () => {
   const { pollId } = useParams();
   const [poll, setPoll] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     const fetchPoll = async () => {
@@ -59,6 +60,7 @@ const ResultsPage = () => {
 
     // Setup Socket.IO connection for real-time updates
     const newSocket = io(config.getSocketUrl());
+    setSocket(newSocket);
 
     newSocket.emit('joinPoll', pollId);
 

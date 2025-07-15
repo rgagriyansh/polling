@@ -23,7 +23,10 @@ app.use(express.json());
 
 // Serve static files (only in production)
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/build')));
+  const staticPath = path.join(__dirname, '../client/build');
+  if (require('fs').existsSync(staticPath)) {
+    app.use(express.static(staticPath));
+  }
 }
 
 // Active connections for Socket.IO
@@ -40,6 +43,11 @@ const POLL_TYPES = {
 // Create a new poll
 app.post('/api/polls', async (req, res) => {
   try {
+    // Check if database is connected
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ error: 'Database not connected' });
+    }
+
     const { title, description, questions, settings } = req.body;
     
     const poll = new Poll({
@@ -256,9 +264,19 @@ app.get('*', (req, res) => {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
   
+  // Skip Socket.IO routes
+  if (req.path.startsWith('/socket.io/')) {
+    return res.status(404).json({ error: 'Socket.IO endpoint not found' });
+  }
+  
   // In production, serve the built React app
   if (process.env.NODE_ENV === 'production') {
-    res.sendFile(path.join(__dirname, '../client/build/index.html'));
+    const indexPath = path.join(__dirname, '../client/build/index.html');
+    if (require('fs').existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(404).json({ error: 'React app not built. Please run npm run build first.' });
+    }
   } else {
     // In development, redirect to React dev server
     res.redirect(`http://localhost:3000${req.path}`);
@@ -270,7 +288,12 @@ const PORT = process.env.PORT || 5001;
 // Connect to MongoDB and start server
 const startServer = async () => {
   try {
-    await connectDB();
+    const dbConnected = await connectDB();
+    
+    if (!dbConnected) {
+      console.log('Starting server without database connection...');
+      console.log('API endpoints will not work without MongoDB connection');
+    }
     
     server.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);

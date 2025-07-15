@@ -31,6 +31,7 @@ const PollPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [socket, setSocket] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -63,6 +64,7 @@ const PollPage = () => {
 
     // Setup Socket.IO connection
     const newSocket = io(config.getSocketUrl());
+    setSocket(newSocket);
 
     newSocket.emit('joinPoll', pollId);
 
