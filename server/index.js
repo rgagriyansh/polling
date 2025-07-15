@@ -5,6 +5,8 @@ const cors = require('cors');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const moment = require('moment');
+const mongoose = require('mongoose');
+
 const connectDB = require('./config/database');
 const Poll = require('./models/Poll');
 
