@@ -1,17 +1,13 @@
 const config = {
   // API URL - use environment variable or default to localhost for development
-  API_URL: process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5001'),
+  API_URL: process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? 'https://polling-cdxd.vercel.app' : 'http://localhost:5001'),
   
   // Socket.IO URL - use environment variable or default to localhost for development
-  SOCKET_URL: process.env.REACT_APP_SOCKET_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5001'),
+  SOCKET_URL: process.env.REACT_APP_SOCKET_URL || (process.env.NODE_ENV === 'production' ? 'https://polling-cdxd.vercel.app' : 'http://localhost:5001'),
   
   // Get the full API URL
   getApiUrl: (endpoint = '') => {
     const baseUrl = config.API_URL;
-    if (!baseUrl) {
-      // In production, use relative URLs
-      return `/api${endpoint}`;
-    }
     return `${baseUrl}/api${endpoint}`;
   },
   
