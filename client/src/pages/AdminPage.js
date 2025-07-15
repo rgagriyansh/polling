@@ -39,7 +39,6 @@ const AdminPage = () => {
   const [poll, setPoll] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showQR, setShowQR] = useState(false);
-  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     const fetchPoll = async () => {
@@ -63,7 +62,6 @@ const AdminPage = () => {
 
     // Setup Socket.IO connection for real-time updates
     const newSocket = io(config.getSocketUrl());
-    setSocket(newSocket);
 
     newSocket.emit('joinPoll', pollId);
 
